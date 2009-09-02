@@ -1,0 +1,8 @@
+This can be included in websites to verifiy passwords with MaNGOS' realmd.account
+table using only s and v. This will be required, once sha_pass_hash is dropped.
+
+MangosSRPDemo.php contains some lines to demonstrate usage of this class, if it
+can't help you, you shouldn't run a site anyway ;)
+
+Note that you will have to install php bindings for GNU Multiple Precision:
+http://de3.php.net/manual/en/intro.gmp.php
