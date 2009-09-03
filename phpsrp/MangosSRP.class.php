@@ -61,20 +61,61 @@ class MangosSRP
         return $out;
     }
 
-    public static function calculateV($s, $password)
+    public static function calculateV($s, $sha_pass_hash)
     {
         $s = self::hexDecode($s);
-        $password = self::hexDecode($password);
+        $sha_pass_hash = self::hexDecode($sha_pass_hash);
 
-        if (strlen($s) != 32 || strlen($password) != 20)
+        if (strlen($s) != 32 || strlen($sha_pass_hash) != 20)
             throw new exception("calculateV: invalid argument");
 
-        $x = self::hexEncode(strrev(sha1(strrev($s).$password, true)));
+        $x = self::hexEncode(strrev(sha1(strrev($s).$sha_pass_hash, true)));
         $v = gmp_powm(self::$g, gmp_init($x, 16), self::$N);
         return gmp_strval($v, 16);
     }
+
+    public static function calculateShaPassHash($username, $password)
+    {
+        return sha1(strtoupper($username).':'.strtoupper($password));
+    }
+
+    public static function generateNewS()
+    {
+        // S is a random 32 byte array
+        // gmp_random generates 16 bit per limiter; 32byte/16bit = 32*8/16 = 16
+        $random = gmp_random(16);
+        $random_str = gmp_strval($random, 16);
+        $s_str = sha1($random_str);
+        // sha1 is just 20 bytes long, add 12 more bytes = 24 (hexencoded)
+        $s_str.=substr($random_str, 0, 24);
+
+        return $s_str;
+    }
+
+    public static function registerNewUser($username, $password)
+    {
+        $returnValues = array();
+        $returnValues['sha_pass_hash'] = self::calculateShaPassHash($username, $password);
+        $returnValues['s'] = self::generateNewS();
+        $returnValues['v'] = self::calculateV($returnValues['s'], $returnValues['sha_pass_hash']);
+
+        return $returnValues;
+    }
+
+    public static function isValidPassword($username, $password, $s, $v)
+    {
+        // verify that v is correct
+        $sha_pass_hash = self::calculateShaPassHash($username, $password);
+        $correct_v = self::calculateV($s, $sha_pass_hash);
+        if(strtoupper($correct_v) == strtoupper($v))
+            return 1;
+        else
+            return 0;
+    }
 }
 
+// php sucks, there are no static constructors, so just call this function after
+// class definition
 MangosSRP::staticConstructor();
 
 ?>
