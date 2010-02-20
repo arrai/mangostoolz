@@ -44,7 +44,7 @@ function easyMail($username, $password, $playername, $subject, $text, $items, $h
     {
         $answer.=$c;
     }
-    if(!fwrite($connection, "USER $username\n") || !fwrite($connection, "PASS $password\n"))
+    if(!fwrite($connection, "$username\n") || !fwrite($connection, "$password\n"))
         return "error while writing to socket";
 
     $answer="";
