@@ -71,7 +71,13 @@ class MangosSRP
 
         $x = self::hexEncode(strrev(sha1(strrev($s).$sha_pass_hash, true)));
         $v = gmp_powm(self::$g, gmp_init($x, 16), self::$N);
-        return gmp_strval($v, 16);
+        $strval= gmp_strval($v, 16);
+        // append leading zeros
+        while(strlen($strval)<64)
+        {
+            $strval = "0"+$strval;
+        }
+        return $strval;
     }
 
     public static function calculateShaPassHash($username, $password)
