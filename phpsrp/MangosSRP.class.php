@@ -75,7 +75,7 @@ class MangosSRP
         // append leading zeros
         while(strlen($strval)<64)
         {
-            $strval = "0"+$strval;
+            $strval = "0".$strval;
         }
         return $strval;
     }
